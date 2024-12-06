@@ -1,5 +1,5 @@
 # Utilizamos una imagen base oficial de Node.js
-FROM node:18-alpine AS builder
+FROM node:18-alpine
 
 # Establecemos el directorio de trabajo dentro del contenedor
 WORKDIR /app
@@ -13,21 +13,8 @@ RUN npm install
 # Copiamos el resto del código fuente de la aplicación
 COPY . .
 
-# Ejecutamos el build de la aplicación Nuxt
-RUN npm run build
-
-# ----
-# Etapa final: configuración de la imagen ligera para producción
-FROM node:18-alpine
-
-# Establecemos el directorio de trabajo dentro del contenedor
-WORKDIR /app
-
-# Copiamos los archivos generados en la etapa de construcción
-COPY --from=builder /app/.output /app
-
 # Exponemos el puerto utilizado por Nuxt (por defecto, el 3000)
 EXPOSE 3000
 
 # Comando por defecto para iniciar la aplicación en producción
-CMD ["node", "server/index.mjs"]
+CMD ["npm", "run", "dev"]]
