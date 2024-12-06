@@ -28,17 +28,17 @@
             </button>
             <button
             class="w-full py-2 px-4 mb-2 text-white text-left rounded hover:bg-blue-700"
-            :class="isActive('/menu/medidores') ? 'bg-slate-600' : 'bg-blue-500'"
-            @click="NavegateTo('/menu/medidores')"
-            >
-            Medidores
-            </button>
-            <button
-            class="w-full py-2 px-4 mb-2 text-white text-left rounded hover:bg-blue-700"
             :class="isActive('/menu/rutas') ? 'bg-slate-600' : 'bg-blue-500'"
             @click="NavegateTo('/menu/rutas')"
             >
             Rutas
+            </button>
+            <button
+            class="w-full py-2 px-4 mb-2 text-white text-left rounded hover:bg-blue-700"
+            :class="isActive('/menu/medidores') ? 'bg-slate-600' : 'bg-blue-500'"
+            @click="NavegateTo('/menu/medidores')"
+            >
+            Medidores
             </button>
             <button
             class="w-full py-2 px-4 mb-2 text-white text-left rounded hover:bg-blue-700"

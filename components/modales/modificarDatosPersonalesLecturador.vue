@@ -42,20 +42,47 @@
     let props = defineProps<Props>();
     let emit = defineEmits(['hidden', 'refreshList']);
     let isOpen = ref(props.open)
-
+    let Lecturadores = ref([])
     let Usuario:Ref<any> = ref()
 
     let state = reactive({
-        nombre: undefined,
-        apellido: undefined,
-        ci: undefined
+        nombre: '',
+        apellido: '',
+        ci: ''
     })
  
     let validate = (state : any): FormError[] => {
         const error = []
-        if(!state.nombre) error.push({path: 'nombre', message: 'Nombre requerido'})
-        if(!state.apellido) error.push({path: 'apellido', message: 'Apellido requerido'})
-        if(!state.ci) error.push({path: 'ci', message: 'Cedula de identidad requerida'})
+        // Nombre
+        if(!state.nombre) {
+            error.push({path: 'nombre', message: 'Nombre requerido'})
+        }
+        if( state.nombre.length > 25 ){
+            error.push({path: 'nombre', message: 'El nombre no debe contener más de 25 caracteres'})
+        }
+        if( espacios_consecutivos(state.nombre) || espacioslaterales(state.nombre) ) {
+            error.push({path: 'nombre', message: 'Espacios innecesarios'})
+        }
+        // Apellido
+        if( !state.apellido ) {
+            error.push({path: 'apellido', message: 'Apellido requerido'})
+        }
+        if( state.apellido.length > 25 ){
+            error.push({path: 'apellido', message: 'El apellido no debe contener más de 25 caracteres'})
+        }
+        if( espacios_consecutivos(state.apellido) || espacioslaterales(state.apellido) ){
+            error.push({path: 'apellido', message: 'Espacios innecesarios'})
+        }
+        // CI
+        if(!state.ci) {
+            error.push({path: 'ci', message: 'Cedula de identidad requerida'})
+        }
+        if( okCI() ){
+            error.push({ path: 'ci', message: 'Cédula de Identidad no disponible' });
+        }
+        if( okComplemento() || espacios_innecesarios( state.ci ) || ceros_izquierda() || espacioslaterales(state.ci) ){
+            error.push({ path: 'ci', message: 'Formato no correcto' });
+        }
         return error
     }
 
@@ -85,6 +112,45 @@
     onMounted( async () => {
         getUsuario()
     })
+
+    function espacios_consecutivos( str :string ){
+        return / {2,}/.test(str)
+    }
+
+    function espacioslaterales( str :string ){
+        return /^\s+|\s+$/.test(str)
+    }
+
+    function okCI() {
+        return Lecturadores.value.some((lecturador) => lecturador.ci === state.ci)
+    }
+
+    function ceros_izquierda(){
+        return /^0\d+/.test(state.ci)
+    }
+    
+    function espacios_innecesarios( str :string ){
+        return (str.match(/ /g) || []).length > 0
+    }
+
+    function okComplemento(){
+        if( state.ci.length < 7 ) return true
+        // solo tiene numeros
+        if( /^\d+$/.test(state.ci) && (state.ci.length == 8 || state.ci.length == 7)) return false
+        // si tiene complemento
+        if( /^\d{7,8}-\d[A-Z]$/.test(state.ci) ) return false
+        if( state.ci.length >= 8 ) return true
+        return true
+    }
+
+    async function getLecturadores(){
+        try{
+            const response:any = await $fetch(server.HOST + '/api/v1/usuarios/lecturador') // cambiar a lecturadores
+            Lecturadores.value = JSON.parse(response)   
+        } catch (e:any){
+            console.log(e)
+        }
+    }
 
     async function getUsuario(){
         try{

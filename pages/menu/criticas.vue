@@ -121,7 +121,21 @@
 
     let validate = (state : any): FormError[] => {
         const error = []
-        if(!state.descripcion) error.push({path: 'descripcion', message: 'Descripción Requerida'})
+        if( !state.descripcion ) {
+            error.push({path: 'descripcion', message: 'Descripción Requerida'})
+        }
+        if( state.descripcion.length >= 25 ){
+            error.push({path: 'descripcion', message: 'La descripción no debe contener más de 25 caracteres'})
+        }
+        if( espacios_consecutivos(state.descripcion) ){
+            error.push({path: 'descripcion', message: 'Formato no correcto'})
+        }
+        if( espacioslaterales(state.descripcion) ){
+            error.push({path: 'descripcion', message: 'Formato no correcto'})
+        }
+        if( !okMayusculas(state.descripcion) ){
+            error.push({path: 'descripcion', message: 'La descripción no debe tener letras en minúsculas'})
+        }
         return error;
     }
 
@@ -146,6 +160,18 @@
             handler: () => { isOpen.value = false }
         }
     })
+    function espacios_consecutivos( str :string ){
+        return / {2,}/.test(str)
+    }
+
+    function espacioslaterales( str :string ){
+        return /^\s+|\s+$/.test(str)
+    }
+
+    function okMayusculas( str : string ){
+        const strim = str.replaceAll(/\s+/g, '')
+        return /^[A-Z]*$/.test(strim)
+    }
 
     // Asincronicas
     async function getCriticas(){
@@ -170,7 +196,7 @@
                 },
                 body: JSON.stringify(state)
             });
-            isCriticaRegisterDialogOpen.value = true;
+            //isCriticaRegisterDialogOpen.value = true;
             await getCriticas(); // Actualizar la lista de medidores
             isOpen.value = false; // Cerrar el modal
         } catch (e: any) {

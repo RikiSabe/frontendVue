@@ -10,7 +10,7 @@
             </div>
             <div class="flex items-center justify-end space-x-4">
                 <UInput v-model="q" placeholder="Filtrar grupo..." />
-                <UPagination v-model="page" :page-count="pageCount" :total="Grupos.length" />
+                <UPagination v-model="page" :page-count="pageCount" :total="Grupos?.length || 0" />
             </div>
         </div>
 
@@ -70,7 +70,7 @@
             
         </div>
     </div>
-    <Deshacergrupo @refreshList="getGrupos()" :id_grupo="indice" :open="isOpenDeshacerGrupo" v-if="isOpenDeshacerGrupo" @hidden="isOpenDeshacerGrupo = false"/>
+    <Deshacergrupo @refreshList="getGrupos(), getLecturadoresLibres(), getRutasLibres()" :id_grupo="indice" :open="isOpenDeshacerGrupo" v-if="isOpenDeshacerGrupo" @hidden="isOpenDeshacerGrupo = false"/>
 </template>
 
 <script setup lang="ts">
@@ -97,7 +97,6 @@
     const pageCount = 4
     const isLoading = ref(false)
     let indice = ref()
-    let cod = ref()
 
     let state = reactive({
         cod_usuario: 0,
@@ -107,7 +106,7 @@
     let hasErrors = computed(() => !state.cod_usuario || !state.cod_ruta);
 
     let items = (row: any) => [[{
-        label: 'Modificar',
+        label: 'Deshacer',
         icon: 'i-heroicons-pencil-square-20-solid',
         click: () =>{
             isOpenDeshacerGrupo.value = true
@@ -130,11 +129,9 @@
     })
 
     onMounted( async () => {
-        isLoading.value = true
         await getLecturadoresLibres()
         await getRutasLibres()
         await getGrupos()
-        isLoading.value = false
     })
 
     // Asincronas
@@ -158,13 +155,19 @@
     }
 
     async function getGrupos() {
+        isLoading.value = true
         try {
             const response: any = await $fetch(server.HOST + '/api/v1/grupos');
             // Grupos.value = JSON.parse(response);
             Grupos.value = typeof response === 'string' ? JSON.parse(response) : response
+            // Grupos.value = Array.isArray(grupos) ? grupos : []
             console.log(Grupos.value)
+
         } catch (e: any) {
             console.log(e)
+            Grupos.value = []
+        } finally {
+            isLoading.value = false
         }
     }
 
@@ -190,18 +193,21 @@
     const paginatedGrupos = computed(() => {
         const start = (page.value - 1) * pageCount;
         const end = page.value * pageCount;
-        return filteredGrupos.value.slice(start, end);
-    })
+        const grupos = Array.isArray(filteredGrupos.value) ? filteredGrupos.value : [];
+        return grupos.slice(start, end);
+    });
+
 
     const filteredGrupos = computed(() => {
         if (!q.value) {
-            return Grupos.value;
+            return Array.isArray(Grupos.value) ? Grupos.value : [];
         }
-        return Grupos.value.filter((grupo) =>
+        return (Array.isArray(Grupos.value) ? Grupos.value : []).filter((grupo) =>
             Object.values(grupo).some((value) =>
                 String(value).toLowerCase().includes(q.value.toLowerCase())
             )
-        )
-    })
+        );
+    });
+
     
 </script>

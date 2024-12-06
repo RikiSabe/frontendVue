@@ -103,7 +103,7 @@
     let isOpen = ref(false)
     let q = ref('')
     let page = ref(1)
-    const pageCount = 5
+    const pageCount = 4
     const isLoading = ref(false)
 
     let columnas = [ 
@@ -116,14 +116,49 @@
 
     let validate = (state : any): FormError[] => {
         const error = []
-        if(!state.nombre) error.push({path: 'nombre', message: 'Nombre Requerido'})
-        if(!state.apellido) error.push({path: 'apellido', message: 'Apellido Requerido'})
+        // nombre
+        if( state.nombre.length > 25 ){
+            error.push({path: 'nombre', message: 'El nombre no debe contener más de 25 caracteres'})
+        }
+        if( !state.nombre ) {
+            error.push({path: 'nombre', message: 'Nombre Requerido'})
+        }
+        if( espacios_consecutivos(state.nombre) || espacioslaterales(state.nombre) ) {
+            error.push({path: 'nombre', message: 'Espacios innecesarios'})
+        }
+        // apellido
+        if( state.apellido.length > 25 ){
+            error.push({path: 'apellido', message: 'El apellido no debe contener más de 25 caracteres'})
+        }
+        if(!state.apellido) {
+            error.push({path: 'apellido', message: 'Apellido Requerido'})
+        }
+        if( espacios_consecutivos(state.apellido) || espacioslaterales(state.apellido) ){
+            error.push({path: 'apellido', message: 'Espacios innecesarios'})
+        }
+        // CI
         if(!state.ci) {
             error.push({path: 'ci', message: 'Cédula de Identidad Requerida'})
-        } else if (!/^\d+$/.test(state.ci)) {
-            error.push({ path: 'ci', message: 'Cédula de Identidad debe contener solo números' });
+        } 
+        if( okCI() ){
+            error.push({ path: 'ci', message: 'Cédula de Identidad no disponible' });
         }
-        if(!state.usuario) error.push({path: 'usuario', message: 'Usuario Requerido'})
+        if( okComplemento() || espacios_innecesarios( state.ci ) || ceros_izquierda() || espacioslaterales(state.ci) ){
+            error.push({ path: 'ci', message: 'Formato no correcto' });
+        }
+        // Usuario
+        if(!state.usuario) {
+            error.push({path: 'usuario', message: 'Usuario Requerido'})
+        }
+        if( state.usuario.length >= 11 ){
+            error.push({path: 'usuario', message: 'El nombre de usuario no debe contener más de 10 caracteres'})
+        }
+        if( okUsuario() ){
+            error.push({path: 'usuario', message: 'El nombre de usuario ya está en uso'})
+        }
+        if( espacios_innecesarios(state.usuario) || espacioslaterales(state.usuario) ){
+            error.push({path: 'usuario', message: 'El nombre de usuario no debe contener espacios'})
+        }
         return error;
     }
 
@@ -168,6 +203,42 @@
         }
     })
 
+    // validators
+    function espacios_innecesarios( str :string ){
+        return (str.match(/ /g) || []).length > 0
+    }
+
+    function espacios_consecutivos( str :string ){
+        return / {2,}/.test(str)
+    }
+
+    function espacioslaterales( str :string ){
+        return /^\s+|\s+$/.test(str)
+    }
+
+    function okCI() {
+        return Lecturadores.value.some((lecturador) => lecturador.ci === state.ci)
+    }
+
+    function ceros_izquierda(){
+        return /^0\d+/.test(state.ci)
+    }
+
+    function okComplemento(){
+        if( state.ci.length < 7 ) return true
+        // solo tiene numeros
+        if( /^\d+$/.test(state.ci) && (state.ci.length == 8 || state.ci.length == 7)) return false
+        // si tiene complemento
+        if( /^\d{7,8}-\d[A-Z]$/.test(state.ci) ) return false
+        if( state.ci.length >= 8 ) return true
+        return true
+    }
+
+    function okUsuario() {
+        return Lecturadores.value.some((lecturador) => lecturador.usuario === state.usuario)
+    }
+
+    // gets
     async function getLecturadores(){
         isLoading.value = true
         try{
@@ -230,7 +301,7 @@
         const hora = horaActual()
         
         doc.setFontSize(10)
-        doc.text(`Fecha y Hora: ${hora}`, 10, 10)
+        doc.text(`Hora y Fecha: ${hora}`, 10, 10)
 
         const logo = hero
         const logoX = 180, logoY = 5, logoWidth = 20, logoHeight = 20

@@ -11,18 +11,18 @@
             </div>
         </template>
         
-        <UForm :state="state" @submit="onSubmit">
-            <UFormGroup label="Descripcion de Critica" name="critica">
+        <UForm :validate="validate" :state="state" @submit="onSubmit">
+            <UFormGroup class="ml-5 mr-5 mb-5" label="Descripcion de Critica" name="descripcion">
                 <UInput v-model="state.descripcion" />
             </UFormGroup>
-            <UFormGroup label="Tipo de Critica" name="tipo">
-                <UInput v-model="state.tipo" />
+            <UFormGroup class="ml-5 mr-5 mb-5" label="Tipo de Crítica" name="tipo">
+                <UInputMenu label="Tipo de critica" name="tipo"  type="none" v-model="state.tipo" :options="tipos"/>
             </UFormGroup>
-            <UFormGroup label="Estado" name="estado">
+            <UFormGroup class="ml-5 mr-5 mb-0" label="Estado" name="estado">
                 <UInputMenu label="Estado" name="estado"  type="none" v-model="selected" :options="estados"/>
             </UFormGroup>
             <br>
-            <UButton type="submit"> Modificar </UButton>
+            <UButton class="mb-5 ml-5 mr-5" :disabled="hasErrors" type="submit"> Modificar </UButton>
         </UForm>
 
     </UCard>
@@ -32,7 +32,7 @@
 <script setup lang="ts">
     // Importaciones
     import { _selected } from '#tailwind-config/theme/aria'
-    import type { FormSubmitEvent } from '#ui/types'
+    import type { FormError, FormSubmitEvent } from '#ui/types'
     import { server } from '~/server/server'
 
     // Interfaces
@@ -43,6 +43,7 @@
 
     // Variables
     let estados = ['activo', 'inactivo']
+    let tipos = ['normal', 'promedio']
     let selected = ref()
     let props = defineProps<Props>();
     let emit = defineEmits(['hidden', 'refreshList']);
@@ -50,11 +51,36 @@
     let Critica:Ref<any> = ref()
     
     const state = reactive({
-        descripcion: undefined,
-        tipo: undefined,
-        estado: undefined
+        descripcion: '',
+        tipo: '',
+        estado: ''
     })
 
+    let validate = (state : any): FormError[] => {
+        const error = []
+        if( !state.descripcion ) {
+            error.push({path: 'descripcion', message: 'Descripción Requerida'})
+        }
+        if( state.descripcion.length >= 25 ){
+            error.push({path: 'descripcion', message: 'La descripción no debe contener más de 25 caracteres'})
+        }
+        if( espacios_consecutivos(state.descripcion) ){
+            error.push({path: 'descripcion', message: 'Formato no correcto'})
+        }
+        if( espacioslaterales(state.descripcion) ){
+            error.push({path: 'descripcion', message: 'Formato no correcto'})
+        }
+        if( !okMayusculas(state.descripcion) ){
+            error.push({path: 'descripcion', message: 'La descripción no debe tener letras en minúsculas'})
+        }
+        return error;
+    }
+
+    let hasErrors = computed( ()=> {
+        const errors = validate(state)
+        return errors.length > 0
+    })
+    
     // Funciones
     watch(() => props.open, (newVal) => {
         isOpen.value = newVal;
@@ -77,6 +103,19 @@
             handler: () => { isOpen.value = false }
         }
     })
+
+    function espacios_consecutivos( str :string ){
+        return / {2,}/.test(str)
+    }
+
+    function espacioslaterales( str :string ){
+        return /^\s+|\s+$/.test(str)
+    }
+
+    function okMayusculas( str : string ){
+        const strim = str.replaceAll(/\s+/g, '')
+        return /^[A-Z]*$/.test(strim)
+    }
 
     async function getCritica(){
         try{
