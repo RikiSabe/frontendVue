@@ -11,7 +11,7 @@
             <template #header>
                 <div class="flex items-center justify-between">
                     <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
-                        Visualizando medidores por Ruta 
+                        Visualizando ruta de un lecturador 
                     </h3>
                     <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="isOpen = false" />
                 </div>
@@ -25,7 +25,7 @@
                     projection: 'mercator',
                 }"
                 :style="{ height: '81vh' }">
-                <MapboxDefaultMarker v-for="marker in Medidores"
+                <!-- <MapboxDefaultMarker v-for="marker in Medidores"
                     :marker-id="'mp' + marker.codMedidor"
                     :lnglat="[marker.longitud, marker.latitud]"
                     :option="{}" >
@@ -38,7 +38,7 @@
                                 medidor: {{ marker.nombre }}
                             </h1>
                     </MapboxDefaultPopup>
-                </MapboxDefaultMarker>
+                </MapboxDefaultMarker> -->
             </MapboxMap>
         </UCard>
     </UModal>
@@ -48,19 +48,19 @@
 <script setup lang="ts">
     import { ref, watch, onMounted } from 'vue';
     import { server } from '~/server/server';
-
+    // falta toda la logica
     // Props y variables
     interface Props {
         open: boolean,
-        cod_ruta: number
+        cod_lecturador: number
     }
     let style = ref("mapbox://styles/mapbox/streets-v12");
-
     let props = defineProps<Props>()
     let emit = defineEmits(['hidden'])
     let Medidores = ref([])
     let isOpen = ref(props.open)
 
+    console.log("cod lecturador: " + props.cod_lecturador)
     // Sincronizar `isOpen` con `props.open`
     watch(() => props.open, async (newVal) => {
         isOpen.value = newVal;
@@ -74,7 +74,7 @@
     })
     
     onMounted( async () => {
-        getMedidoresByRuta()
+        // getMedidoresByRuta()
     })
     defineShortcuts({
         escape: {
@@ -85,13 +85,13 @@
     })
 
     // Función para obtener los medidores por ruta
-    async function getMedidoresByRuta() {
-        try {
-            const response: any = await $fetch(`${server.HOST}/api/v1/medidores/byrutaweb/${props.cod_ruta}`);
-            Medidores.value = JSON.parse(response);
-            // console.log(Medidores.value)
-        } catch (e: any) {
-            console.error('Error al obtener medidores', e);
-        }
-    }
+    // async function getMedidoresByRuta() {
+    //     try {
+    //         const response: any = await $fetch(`${server.HOST}/api/v1/medidores/byrutaweb/${props.cod_ruta}`);
+    //         Medidores.value = JSON.parse(response);
+    //         // console.log(Medidores.value)
+    //     } catch (e: any) {
+    //         console.error('Error al obtener medidores', e);
+    //     }
+    // }
 </script>

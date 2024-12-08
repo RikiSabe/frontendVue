@@ -60,11 +60,34 @@
                 </div>
 
                 <div class="bg-slate-800 p-4 rounded-lg shadow-lg">
+                    <h2 class="text-lg font-semibold mb-2">Ubicación de todos los medidores</h2>
+                    <p class="text-sm text-muted-foreground">Visualiza la ubicación de todos los medidores</p>
+                    <br>
+                    <button
+                        class="bg-cyan-600 text-primary-foreground mt-4 py-2 px-4 rounded-md hover:bg-cyan-800"
+                        @click="isOpenVisualizarUbicacionesMedidores = true"
+                        >
+                        Obtener
+                    </button>
+                </div>
+
+                <div class="bg-slate-800 p-4 rounded-lg shadow-lg">
                     <h2 class="text-lg font-semibold mb-2">Ubicación de medidores</h2>
                     <p class="text-sm text-muted-foreground">Visualiza la ubicación de los medidores con respecto a su ruta</p>
                     <button
                         class="bg-cyan-600 text-primary-foreground mt-4 py-2 px-4 rounded-md hover:bg-cyan-800"
                         @click="isOpen = true"
+                        >
+                        Obtener
+                    </button>
+                </div>
+
+                <div class="bg-slate-800 p-4 rounded-lg shadow-lg">
+                    <h2 class="text-lg font-semibold mb-2">Ruta de un lecturador</h2>
+                    <p class="text-sm text-muted-foreground">Visualiza la ruta de transición de un lecturador</p>
+                    <button
+                        class="bg-cyan-600 text-primary-foreground mt-4 py-2 px-4 rounded-md hover:bg-cyan-800"
+                        @click="isOpenRuta = true"
                         >
                         Obtener
                     </button>
@@ -122,18 +145,50 @@
                         </UForm>
                     </UCard>
                 </UModal>
+                
+                <UModal v-model="isOpenRuta" prevent-close>
+                    <UCard :ui="{ ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800' }">
+                        <template #header>
+                        <div class="flex items-center justify-between">
+                            <h3 class="ml-10 text-base font-semibold leading-6 text-gray-900 dark:text-white">
+                            Filtro por lecturador
+                            </h3>
+                            <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="isOpenRuta = false" />
+                        </div>
+                        </template>
+                        <!-- Formulario -->
+                        <UForm :state="state" @submit="onSubmit">
+                            <UFormGroup class="ml-10 mr-10 mb-5" label="Lecturadores" name="Lecturadores">
+                                <UInputMenu
+                                    type="none" 
+                                    v-model="codlecturador" 
+                                    :options="Lecturadores"
+                                    value-attribute="codUsuario"
+                                    option-attribute="usuario"
+                                />
+                            </UFormGroup>
+                            <UButton class="ml-10 mr-5 mt-0" color="blue" @click="isOpenRutaLecturador = true"> Obtener </UButton>
+                        </UForm>
+                    </UCard>
+                </UModal>
+
                 </div>
             </div>
         </main>
 
     </div>
     <visualizarMedidoresRuta :open="isOpenVisualizarMedidores" :cod_ruta="state.cod_ruta" v-if="isOpenVisualizarMedidores" @hidden="isOpenVisualizarMedidores = false" />
+    <VisualizarAllMedidores :open="isOpenVisualizarUbicacionesMedidores" v-if="isOpenVisualizarUbicacionesMedidores" @hidden="isOpenVisualizarUbicacionesMedidores = false" />
+    <VisualizarRutaLecturador :open="isOpenRutaLecturador" :cod_lecturador="codlecturador" v-if="isOpenRutaLecturador" @hidden="isOpenRutaLecturador = false" />
 </template>
 
 <script setup lang="ts">
     // Importaciones
+    import VisualizarAllMedidores from '~/components/modales/visualizarAllMedidores.vue';
     import visualizarMedidoresRuta from '~/components/modales/visualizarMedidoresRuta.vue'
+    import VisualizarRutaLecturador from '~/components/modales/visualizarRutaLecturador.vue';
     import { server } from '~/server/server';
+
     // Variables
     let isOpen = ref(false)
     let isOpenLec = ref(false)
@@ -146,6 +201,9 @@
     let Lecturadores = ref([])
     let showAlert = ref(false)
     let alertMessage = ref('')
+    let isOpenVisualizarUbicacionesMedidores = ref(false)
+    let isOpenRutaLecturador = ref(false)
+    let isOpenRuta = ref(false)
 
     // Funciones
     definePageMeta({
