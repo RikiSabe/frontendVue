@@ -2,6 +2,14 @@
     <div class="bg-cyan-400 h-screen">
         <header class="py-4 bg-slate-800">
             <h1 class="text-2xl text-center font-bold"> LISTA DE RUTAS </h1>
+            <div v-if="showAlert" class="alert-container">
+                <UAlert
+                    icon="i-heroicons-command-line"
+                    color="green"
+                    variant="solid"
+                    :description="alertMessage"
+                />
+            </div>
         </header>
 
         <div class="grid grid-cols-2 ml-10 mr-10 mt-5 mb-0 border-gray-200 dark:border-gray-700">
@@ -56,7 +64,7 @@
             
         </div>
     </div>
-    <modificarRuta @refreshList="getRutas()" :id="indice"  :open="isOpenModificarRuta" v-if="isOpenModificarRuta" @hidden="isOpenModificarRuta = false"/>
+    <modificarRuta @refreshList="getRutas(), onSuccess()" :id="indice"  :open="isOpenModificarRuta" v-if="isOpenModificarRuta" @hidden="isOpenModificarRuta = false"/>
 </template>
 
 <script setup lang="ts">
@@ -74,6 +82,8 @@
     let page = ref(1)
     const pageCount = 4
     const isLoading = ref(false)
+    let showAlert = ref(false)
+    let alertMessage = ref('')
 
     let columnas = [ 
         { key: 'cod', label: 'Codigo de Ruta', sortable: true },
@@ -150,10 +160,25 @@
             });
             await getRutas(); // Actualizar la lista de medidores
             isOpen.value = false; // Cerrar el modal
+
+            alertMessage.value = 'Agregado correctamente';
+            showAlert.value = true;
+            setTimeout(() => {
+                showAlert.value = false;
+            }, 5000);
         } catch (e: any) {
             console.log(e);
         }
     }
+
+    function onSuccess() {
+        alertMessage.value = 'Modificado exitosamente'
+        showAlert.value = true
+        setTimeout( () => {
+            showAlert.value = false
+        }, 5000)
+    }
+
     const paginatedRutas = computed(() => {
         const start = (page.value - 1) * pageCount;
         const end = page.value * pageCount;
@@ -173,30 +198,26 @@
 </script>
 
 <style scoped>
-.window {
-    margin-left: 100px;
-    margin-right: 100px;    
+.alert-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 50;
+    max-width: 250px;
+    width: 100%;
+    animation: fadeOut 5s forwards;
 }
-.list{
-    margin: 5px;
-    padding: 10px;
-}
-.titulo{
-    color: white;
-    margin: 10px;
-    text-align: center;
-}
-.button{
-    margin: 10px;
-    background-color: #3498DB;
-    padding: 10px;
-    border-radius: 5px;
-}
-.button-agregar{
-    margin: 15px;
-    background-color: white;
-    padding: 10px;
-    border-radius: 5px;
-    align-items: end;
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        /* transform: translateY(-20px); */
+    }
 }
 </style>

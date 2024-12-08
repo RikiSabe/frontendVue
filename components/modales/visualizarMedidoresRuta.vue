@@ -86,7 +86,7 @@
     // Función para obtener los medidores por ruta
     async function getMedidoresByRuta() {
         try {
-            const response: any = await $fetch(`${server.HOST}/api/v1/medidores/byruta/${props.cod_ruta}`);
+            const response: any = await $fetch(`${server.HOST}/api/v1/medidores/byrutaweb/${props.cod_ruta}`);
             Medidores.value = JSON.parse(response);
             // console.log(Medidores.value)
         } catch (e: any) {

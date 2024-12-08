@@ -2,6 +2,14 @@
     <div class="bg-cyan-400 h-screen">
         <header class="py-4 bg-slate-800">
             <h1 class="text-2xl text-center font-bold"> LISTA DE CRITICAS </h1>
+            <div v-if="showAlert" class="alert-container">
+                <UAlert
+                    icon="i-heroicons-command-line"
+                    color="green"
+                    variant="solid"
+                    :description="alertMessage"
+                />
+            </div>
         </header>
 
         <div class="grid grid-cols-2 ml-10 mr-10 mt-5 mb-0 border-gray-200 dark:border-gray-700">
@@ -73,7 +81,7 @@
         </UCard>
     </UModal>
 
-    <modificarCritica @refresh-list="getCriticas()" :id="indice" :open="isOpenModificarCritica" v-if="isOpenModificarCritica" @hidden="isOpenModificarCritica = false"/>
+    <modificarCritica @refresh-list="getCriticas(), onSuccess()" :id="indice" :open="isOpenModificarCritica" v-if="isOpenModificarCritica" @hidden="isOpenModificarCritica = false"/>
 </template>
 
 <script setup lang="ts">
@@ -90,6 +98,8 @@
     let page = ref(1)
     const pageCount = 4
     const isLoading = ref(false)
+    let showAlert = ref(false)
+    let alertMessage = ref('')
 
     // Objetos
     let tipos = ['normal', 'promedio']
@@ -199,10 +209,25 @@
             //isCriticaRegisterDialogOpen.value = true;
             await getCriticas(); // Actualizar la lista de medidores
             isOpen.value = false; // Cerrar el modal
+
+            alertMessage.value = 'Agregado correctamente';
+            showAlert.value = true;
+            setTimeout(() => {
+                showAlert.value = false;
+            }, 5000);
         } catch (e: any) {
             console.log(e);
         }
     }
+
+    function onSuccess() {
+        alertMessage.value = 'Modificado exitosamente'
+        showAlert.value = true
+        setTimeout( () => {
+            showAlert.value = false
+        }, 5000)
+    }
+
     const paginatedCriticas = computed(() => {
         const start = (page.value - 1) * pageCount;
         const end = page.value * pageCount;
@@ -220,3 +245,28 @@
         );
     });
 </script>
+
+<style scoped>
+.alert-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 50;
+    max-width: 250px;
+    width: 100%;
+    animation: fadeOut 5s forwards;
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        /* transform: translateY(-20px); */
+    }
+}
+</style>

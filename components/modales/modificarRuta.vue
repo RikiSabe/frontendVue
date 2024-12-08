@@ -97,7 +97,7 @@
                 body: JSON.stringify(Ruta.value)
             });
             isOpen.value = false;
-            emit('refreshList')
+            emit('refreshList', 'success')
         } catch (e: any) {
             console.log(e);
         }

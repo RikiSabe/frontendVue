@@ -2,8 +2,16 @@
     <div class="bg-cyan-400 h-screen">
         <header class="py-4 bg-slate-800">
             <h1 class="text-2xl text-center font-bold"> LISTA DE LECTURADORES </h1>
+            <div v-if="showAlert" class="alert-container">
+                <UAlert
+                    icon="i-heroicons-command-line"
+                    color="green"
+                    variant="solid"
+                    :description="alertMessage"
+                />
+            </div>
         </header>
-
+        
         <div class="grid grid-cols-2 ml-10 mr-10 mt-5 mb-0 border-gray-200 dark:border-gray-700">
             <div class="flex items-center">
                 <UButton icon="i-heroicons-plus-20-solid" color="gray" label="Nuevo Lecturador" @click="isOpen = true" />
@@ -82,7 +90,7 @@
         </UCard>
     </UModal>
 
-    <modificarDatosPersonalesLecturador @refreshList="getLecturadores()" :id="indice" :open="isOpenModificarDatosPersonalesLecturador" v-if="isOpenModificarDatosPersonalesLecturador" @hidden="isOpenModificarDatosPersonalesLecturador = false"/>
+    <modificarDatosPersonalesLecturador @refreshList="getLecturadores(), onSuccess()" :id="indice" :open="isOpenModificarDatosPersonalesLecturador" v-if="isOpenModificarDatosPersonalesLecturador" @hidden="isOpenModificarDatosPersonalesLecturador = false"/>
     <modificarCredencialesLecturador :open="isOpenModificarCredenciales" :id="indice" v-if="isOpenModificarCredenciales" @hidden="isOpenModificarCredenciales = false" />
 </template>
 
@@ -105,6 +113,8 @@
     let page = ref(1)
     const pageCount = 4
     const isLoading = ref(false)
+    let showAlert = ref(false)
+    let alertMessage = ref('')
 
     let columnas = [ 
         { key: 'usuario', label: 'Usuario', sortable: true },     
@@ -264,12 +274,26 @@
             });
             generatedPassword.value = response;
             isPasswordDialogOpen.value = true;
-            
+
             await getLecturadores();
             isOpen.value = false;
+            
+            alertMessage.value = 'Agregado correctamente';
+            showAlert.value = true;
+            setTimeout(() => {
+                showAlert.value = false;
+            }, 5000);
         } catch (e: any) {
             console.log(e);
         }
+    }
+
+    function onSuccess() {
+        alertMessage.value = 'Modificado exitosamente'
+        showAlert.value = true
+        setTimeout( () => {
+            showAlert.value = false
+        }, 5000)
     }
 
     const paginatedLecturadores = computed(() => {
@@ -334,5 +358,30 @@
             doc.save('credenciales ' + state.usuario + '.pdf')
         }
     }
-
+    
 </script>
+
+<style scoped>
+.alert-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 50;
+    max-width: 250px;
+    width: 100%;
+    animation: fadeOut 5s forwards;
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        /* transform: translateY(-20px); */
+    }
+}
+</style>

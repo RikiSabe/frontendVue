@@ -40,7 +40,7 @@
 
     // Variables
     let props = defineProps<Props>();
-    let emit = defineEmits(['hidden', 'refreshList']);
+    let emit = defineEmits(['hidden', 'refreshList', 'success']);
     let isOpen = ref(props.open)
     let Lecturadores = ref([])
     let Usuario:Ref<any> = ref()
@@ -181,8 +181,8 @@
                 },
                 body: JSON.stringify(Usuario.value)
             });
-            isOpen.value = false;
             emit('refreshList')
+            isOpen.value = false;
         } catch (e: any) {
             console.log(e);
         }
