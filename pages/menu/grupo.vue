@@ -86,6 +86,7 @@
     import type { FormSubmitEvent } from '#ui/types'
     import Deshacergrupo from '~/components/modales/deshacergrupo.vue';
     import { server } from '~/server/server';
+    import { useRouter } from 'vue-router'
 
     // Variables
     let columnas = [
@@ -107,6 +108,8 @@
     let indice = ref()
     let showAlert = ref(false)
     let alertMessage = ref('')
+    let token = "none"
+    let router = useRouter()
 
     let state = reactive({
         cod_usuario: 0,
@@ -138,10 +141,15 @@
         }
     })
 
-    onMounted( async () => {
-        await getLecturadoresLibres()
-        await getRutasLibres()
-        await getGrupos()
+    onMounted( () => {
+        getLecturadoresLibres()
+        getRutasLibres()
+        getGrupos()
+        token = localStorage.getItem('auth_token') as string
+        if ( token === "none" ) {
+            router.push('/no_autorizado')
+            return
+        }
     })
 
     // Asincronas

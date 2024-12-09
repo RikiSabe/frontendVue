@@ -89,6 +89,7 @@
     import modificarCritica from '~/components/modales/modificarCritica.vue';
     import type { FormError, FormSubmitEvent } from '#ui/types'
     import { server } from '~/server/server';
+    import { useRouter } from 'vue-router'
 
     // Variables
     let isOpenModificarCritica = ref(false);
@@ -100,6 +101,8 @@
     const isLoading = ref(false)
     let showAlert = ref(false)
     let alertMessage = ref('')
+    let token = "none"
+    let router = useRouter()
 
     // Objetos
     let tipos = ['normal', 'promedio']
@@ -161,6 +164,11 @@
 
     onMounted(() => {
         getCriticas()
+        token = localStorage.getItem('auth_token') as string
+        if ( token === "none" ) {
+            router.push('/no_autorizado')
+            return
+        }
     })
     
     defineShortcuts({

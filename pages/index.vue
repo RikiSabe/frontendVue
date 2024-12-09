@@ -49,10 +49,15 @@
     import { useRouter } from 'vue-router';
     import { server } from '~/server/server';
     import hero from '../public/fontoinicio.jpeg'
+
     let username = ref('');
     let password = ref('');
     let errorMessage = ref('');
     let router = useRouter();
+
+    onMounted( () => {
+        localStorage.setItem('auth_token', "none");
+    })
 
     async function ingresarMenu() {
         try {
@@ -81,4 +86,5 @@
             errorMessage.value = 'Error de conexión';
         }
     }
+    
 </script>

@@ -60,6 +60,7 @@
 <script setup lang="ts">
     //Importaciones
     import { server } from '~/server/server';
+    import { useRouter } from 'vue-router'
     // Variables
     let nombre_completo = ref('Cargando') 
     let usuario = ref('Cargando')
@@ -69,8 +70,9 @@
     let cantidadMedidores = ref(0)
     let cantidadRutas = ref(0)
     let cantidadCriticas = ref(0)
-    let token = ""
-    // console.log(token)
+    let token = "none"
+    let router = useRouter()
+    console.log("token: " + token)
     
     // Funciones
     definePageMeta({
@@ -78,6 +80,10 @@
     })
     onMounted( () => {
         token = localStorage.getItem('auth_token') as string
+        if ( token === "none" ) {
+            router.push('/no_autorizado')
+            return
+        }
         getCantidadLecturadores()
         getCantidadMedidores()
         getCantidadRutas()

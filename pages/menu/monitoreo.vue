@@ -41,6 +41,7 @@
 <script setup lang="ts">
     import { ref, onMounted } from 'vue';
     import { server } from '~/server/server';
+    import { useRouter  } from 'vue-router';
 
     interface trabajador {
         lng: number;
@@ -52,7 +53,9 @@
     const style = ref("mapbox://styles/mapbox/streets-v12");
     let markers:Ref<trabajador[]> = ref([]);
     let wsLive: WebSocket | null = null;
-    
+    let token = "none"
+    let router = useRouter()
+
     function obtenerUbicacionesWS() {
         let reconnectInterval = 1000; // Initial reconnect interval in ms
         const maxReconnectInterval = 30000; // Max reconnect interval in ms
@@ -93,6 +96,11 @@
     
     onMounted(async () => {
         obtenerUbicacionesWS()
+        token = localStorage.getItem('auth_token') as string
+        if ( token === "none" ) {
+            router.push('/no_autorizado')
+            return
+        }
     })
     
     definePageMeta({

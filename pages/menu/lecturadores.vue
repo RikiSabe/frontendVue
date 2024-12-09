@@ -101,6 +101,7 @@
     import modificarCredencialesLecturador from '~/components/modales/modificarCredencialesLecturador.vue'
     import jsPDF from 'jspdf'
     import hero from '@/images/cosaalt_logo.png'
+    import { useRouter } from 'vue-router'
 
     let isOpenModificarDatosPersonalesLecturador = ref(false)
     let isOpenModificarCredenciales = ref(false)
@@ -115,6 +116,8 @@
     const isLoading = ref(false)
     let showAlert = ref(false)
     let alertMessage = ref('')
+    let token = "none" 
+    let router = useRouter()
 
     let columnas = [ 
         { key: 'usuario', label: 'Usuario', sortable: true },     
@@ -203,7 +206,14 @@
     
     definePageMeta({ layout: 'menu' })
     
-    onMounted(()=>{ getLecturadores() })
+    onMounted( () => { 
+        getLecturadores() 
+        token = localStorage.getItem('auth_token') as string
+        if ( token === "none" ) {
+            router.push('/no_autorizado')
+            return
+        }
+    })
     
     defineShortcuts({
         escape: {

@@ -188,6 +188,7 @@
     import visualizarMedidoresRuta from '~/components/modales/visualizarMedidoresRuta.vue'
     import VisualizarRutaLecturador from '~/components/modales/visualizarRutaLecturador.vue';
     import { server } from '~/server/server';
+    import { useRouter } from 'vue-router'
 
     // Variables
     let isOpen = ref(false)
@@ -204,15 +205,22 @@
     let isOpenVisualizarUbicacionesMedidores = ref(false)
     let isOpenRutaLecturador = ref(false)
     let isOpenRuta = ref(false)
+    let token = "none"
+    let router = useRouter()
 
     // Funciones
     definePageMeta({
         layout: 'menu'
     })
 
-    onMounted( async () => {
+    onMounted( () => {
         getRutas()
         getLecturadores()
+        token = localStorage.getItem('auth_token') as string
+        if ( token === "none" ) {
+            router.push('/no_autorizado')
+            return
+        }
     })
 
     async function getLecturadores(){

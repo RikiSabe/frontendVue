@@ -72,7 +72,8 @@
     import modificarRuta from '~/components/modales/modificarRuta.vue';
     import type { FormError, FormSubmitEvent } from '#ui/types'
     import { server } from '~/server/server';
-    
+    import { useRouter } from 'vue-router'
+
     // Variables
     let isOpenModificarRuta = ref(false);
     let Rutas = ref([])
@@ -84,6 +85,8 @@
     const isLoading = ref(false)
     let showAlert = ref(false)
     let alertMessage = ref('')
+    let token = "none"
+    let router = useRouter()
 
     let columnas = [ 
         { key: 'cod', label: 'Codigo de Ruta', sortable: true },
@@ -125,6 +128,11 @@
 
     onMounted(() => {
         getRutas()
+        token = localStorage.getItem('auth_token') as string
+        if ( token === "none" ) {
+            router.push('/no_autorizado')
+            return
+        }
     })
     
     defineShortcuts({

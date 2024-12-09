@@ -96,6 +96,7 @@
     import agregarnuevomedidor from '~/components/modales/agregarnuevomedidor.vue'
     import type { FormError, FormSubmitEvent } from '#ui/types'
     import { server } from '~/server/server'
+    import { useRouter } from 'vue-router'
 
     // Variables
     let isOpenModificarMedidor = ref(false);
@@ -109,6 +110,8 @@
     const isLoading = ref(false)
     let showAlert = ref(false)
     let alertMessage = ref('')
+    let token = "none"
+    let router = useRouter()
 
     let tipos = ['domicilio', 'residencia']
     let Rutas = ref()
@@ -154,14 +157,19 @@
         ruta: ''
     })
 
+    onMounted( () => {
+        getMedidores()
+        getRutas()
+        token = localStorage.getItem('auth_token') as string
+        if ( token === "none" ) {
+            router.push('/no_autorizado')
+            return
+        }
+    })
+
     // Funciones
     definePageMeta({
         layout: 'menu'
-    })
-
-    onMounted( async() => {
-        getMedidores()
-        getRutas()
     })
     
     defineShortcuts({

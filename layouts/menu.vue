@@ -63,7 +63,7 @@
             </button>
             <button
             class="w-full py-2 px-4 bg-red-500 text-white text-left rounded hover:bg-red-700"
-            @click="NavegateTo('')"
+            @click="NavegateTo(''), logout()"
             >
             Cerrar Sesión
             </button>
@@ -83,6 +83,9 @@
     }
     function isActive(route: string) {
         return activeRoute.value === route;
+    }
+    function logout(){
+        localStorage.setItem('auth_token', "none");
     }
 </script>
   
