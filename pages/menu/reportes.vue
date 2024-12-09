@@ -82,7 +82,7 @@
                     </button>
                 </div>
 
-                <div class="bg-slate-800 p-4 rounded-lg shadow-lg">
+                <!-- <div class="bg-slate-800 p-4 rounded-lg shadow-lg">
                     <h2 class="text-lg font-semibold mb-2">Ruta de un lecturador</h2>
                     <p class="text-sm text-muted-foreground">Visualiza la ruta de transición de un lecturador</p>
                     <button
@@ -91,7 +91,7 @@
                         >
                         Obtener
                     </button>
-                </div>
+                </div> -->
 
                 <div>
                 <UModal v-model="isOpen" prevent-close>

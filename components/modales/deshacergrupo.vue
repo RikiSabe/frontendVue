@@ -13,7 +13,9 @@
         
         <UForm :state="state" @submit="onSubmit">
             <div class="flex justify-center items-center">
-                <h1> {{ state.nombreUsuario }} => {{ state.nombreRuta }} </h1>
+                <h1 class="font-bold"> {{ state.nombreUsuario }} </h1>
+                <img aria-hidden="true" alt="profile" src="/images/flechabg.png" class="w-16 h-22" />
+                <h1 class="font-bold"> {{ state.nombreRuta }} </h1>
             </div>
             <div class="mt-6 flex justify-center items-center">
                 <UButton class="m-2" color="blue" type="submit"> Deshacer </UButton>

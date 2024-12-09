@@ -1,7 +1,6 @@
 <template>
-    <UModal 
-        v-model="isOpen" fullscreen>
-        <UCard 
+    <UModal v-model="isOpen" fullscreen>
+        <UCard
             :ui="{
                 base: 'h-full flex flex-col',
                 rounded: '',
@@ -11,87 +10,103 @@
             <template #header>
                 <div class="flex items-center justify-between">
                     <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
-                        Visualizando ruta de un lecturador 
+                        Visualizando medidores por Ruta
                     </h3>
                     <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="isOpen = false" />
                 </div>
             </template>
-            <MapboxMap
-                map-id="map1"
-                :options="{
-                    style,
-                    center: [-64.723551, -21.539157],
-                    zoom: 13.8,
-                    projection: 'mercator',
-                }"
-                :style="{ height: '81vh' }">
-                <!-- <MapboxDefaultMarker v-for="marker in Medidores"
-                    :marker-id="'mp' + marker.codMedidor"
-                    :lnglat="[marker.longitud, marker.latitud]"
-                    :option="{}" >
-                    <MapboxDefaultPopup
-                        :popup-id="'mp' + marker.nombre"
-                        :lnglat="[marker.longitud, marker.latitud]"
-                        :options="{ closeOnClick: true }" >
-                            <h1 class="text-black">
-                                {{ marker.propietario }} <br>
-                                medidor: {{ marker.nombre }}
-                            </h1>
-                    </MapboxDefaultPopup>
-                </MapboxDefaultMarker> -->
-            </MapboxMap>
+            <div>
+                <div id="map"></div>
+            </div>
         </UCard>
     </UModal>
 </template>
 
-
 <script setup lang="ts">
-    import { ref, watch, onMounted } from 'vue';
-    import { server } from '~/server/server';
-    // falta toda la logica
-    // Props y variables
-    interface Props {
-        open: boolean,
-        cod_lecturador: number
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
+import mapboxgl from 'mapbox-gl';
+
+// Props para el componente
+interface Props {
+  open: boolean;
+}
+const props = defineProps<Props>();
+const emit = defineEmits(['hidden']);
+
+// Estado reactivo para manejar el modal
+const isOpen = ref(props.open);
+
+// Datos de los medidores
+const Medidores = [
+  {
+    codMedidor: 1,
+    estado: 'activo',
+    medicion: 0,
+    nombre: 'A-01',
+    propietario: 'Victor Manuel',
+    codRuta: 1,
+    latitud: -21.528734,
+    longitud: -64.73265,
+  },
+  {
+    codMedidor: 2,
+    estado: 'activo',
+    medicion: 0,
+    nombre: 'A-02',
+    propietario: 'Manuel Arenas',
+    codRuta: 1,
+    latitud: -21.529243,
+    longitud: -64.73236,
+  },
+  {
+    codMedidor: 3,
+    estado: 'activo',
+    medicion: 0,
+    nombre: 'A-03',
+    propietario: 'David Villa',
+    codRuta: 1,
+    latitud: -21.529064,
+    longitud: -64.73221,
+  },
+];
+
+let map: mapboxgl.Map | null = null;
+
+// Observa cambios en las props y ajusta el estado del modal
+watch(() => props.open, (newVal) => {
+  isOpen.value = newVal;
+  if (newVal) {
+    setTimeout(() => initializeMap(), 300); // Espera a que el modal se renderice completamente
+  }
+});
+
+// Limpia el mapa cuando el modal se cierra
+watch(isOpen, (newVal) => {
+  if (!newVal) {
+    emit('hidden');
+    if (map) {
+      map.remove();
+      map = null;
     }
-    let style = ref("mapbox://styles/mapbox/streets-v12");
-    let props = defineProps<Props>()
-    let emit = defineEmits(['hidden'])
-    let Medidores = ref([])
-    let isOpen = ref(props.open)
+  }
+});
 
-    console.log("cod lecturador: " + props.cod_lecturador)
-    // Sincronizar `isOpen` con `props.open`
-    watch(() => props.open, async (newVal) => {
-        isOpen.value = newVal;
-    });
+// Inicializa el mapa
+function initializeMap() {
+  mapboxgl.accessToken = 'pk.eyJ1IjoicmlraXNhYmUiLCJhIjoiY2xpYWM4MTZiMDF2aDNqbXE2YTl5ajh0NCJ9.JjjjSt0aDejclb9xNddA_w';
+  map = new mapboxgl.Map({
+    container: 'map', // Contenedor del mapa
+    style: 'mapbox://styles/mapbox/streets-v12',
+    center: [-64.73265, -21.528734], // Coordenadas iniciales
+    zoom: 14,
+  });
 
-    // Emitir el evento `hidden` cuando `isOpen` cambia a `false`
-    watch(isOpen, (newVal) => {
-        if (!newVal) {
-            emit('hidden');
-        }
-    })
-    
-    onMounted( async () => {
-        // getMedidoresByRuta()
-    })
-    defineShortcuts({
-        escape: {
-            usingInput: true,
-            whenever: [isOpen],
-            handler: () => { isOpen.value = false }
-        }
-    })
-
-    // Función para obtener los medidores por ruta
-    // async function getMedidoresByRuta() {
-    //     try {
-    //         const response: any = await $fetch(`${server.HOST}/api/v1/medidores/byrutaweb/${props.cod_ruta}`);
-    //         Medidores.value = JSON.parse(response);
-    //         // console.log(Medidores.value)
-    //     } catch (e: any) {
-    //         console.error('Error al obtener medidores', e);
-    //     }
-    // }
+}
 </script>
+
+<style>
+    .map-container {
+    width: 100%;
+    height: 100%; /* Se ajusta a la altura completa del modal */
+    }
+</style>
